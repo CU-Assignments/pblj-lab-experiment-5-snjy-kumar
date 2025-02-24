@@ -22,6 +22,164 @@ displayAllEmployees(): This method reads all employee objects from the file and 
 readEmployeesFromFile(): This method reads the employee objects from the file using ObjectInputStream and stores them in a list. 
 The loop continues until the end of the file is reached (IOFException).
 
+=======================================================
+  Code:
+  --------------------------
+  import java.io.*;
+import java.util.*;
+
+class Employee implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private String name;
+    private int id;
+    private String designation;
+    private double salary;
+
+    public Employee(String name, int id, String designation, double salary) {
+        this.name = name;
+        this.id = id;
+        this.designation = designation;
+        this.salary = salary;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+
+    @Override
+    public String toString() {
+        return "Employee ID: " + id + ", Name: " + name + ", Designation: " + designation + ", Salary: " + salary;
+    }
+}
+
+public class EmployeeManagementSystem {
+
+    private static final String FILE_NAME = "employee_data.ser";
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        while (true) {
+            System.out.println("Menu:");
+            System.out.println("1. Add Employee");
+            System.out.println("2. Display All Employees");
+            System.out.println("3. Exit");
+            System.out.print("Choose an option: ");
+            
+            int choice = scanner.nextInt();
+            scanner.nextLine();  
+
+            switch (choice) {
+                case 1:
+                    addEmployee();
+                    break;
+                case 2:
+                    displayAllEmployees();
+                    break;
+                case 3:
+                    System.out.println("Exiting...");
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid option, please try again.");
+            }
+        }
+    }
+
+    public static void addEmployee() {
+        System.out.print("Enter Employee Name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Enter Employee ID: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        System.out.print("Enter Designation: ");
+        String designation = scanner.nextLine();
+
+        System.out.print("Enter Salary: ");
+        double salary = scanner.nextDouble();
+
+        Employee employee = new Employee(name, id, designation, salary);
+        saveEmployeeToFile(employee);
+        System.out.println("Employee added successfully!");
+    }
+
+    public static void saveEmployeeToFile(Employee employee) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(FILE_NAME, true))) {
+            out.writeObject(employee);
+        } catch (IOException e) {
+            System.out.println("Error occurred while saving employee data: " + e.getMessage());
+        }
+    }
+
+    public static void displayAllEmployees() {
+        List<Employee> employees = readEmployeesFromFile();
+        if (employees.isEmpty()) {
+            System.out.println("No employee data found.");
+        } else {
+            for (Employee emp : employees) {
+                System.out.println(emp);
+            }
+        }
+    }
+
+    public static List<Employee> readEmployeesFromFile() {
+        List<Employee> employees = new ArrayList<>();
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+            while (true) {
+                try {
+                    Employee employee = (Employee) in.readObject();
+                    employees.add(employee);
+                } catch (EOFException e) {
+                    break;  
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No data file found, creating a new one.");
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Error occurred while reading employee data: " + e.getMessage());
+        }
+        return employees;
+    }
+}
+--------------------
+  output:
+Menu:
+1. Add Employee
+2. Display All Employees
+3. Exit
+Choose an option: 1
+Enter Employee Name: John Doe
+Enter Employee ID: 101
+Enter Designation: Software Engineer
+Enter Salary: 500000 
+Employee added successfully!
+Menu:
+1. Add Employee
+2. Display All Employees
+3. Exit
+Choose an option: 2
+Employee ID: 101, Name: John Doe, Designation: Software Engineer, Salary: 500000.0
+Menu:
+1. Add Employee
+2. Display All Employees
+3. Exit
+Choose an option: 3
+Exiting...
+
+===========================================================================
 
 
 
